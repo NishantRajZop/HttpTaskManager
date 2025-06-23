@@ -9,27 +9,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Solution 1: Generate go.sum first
+      - name: Generate dependencies
+        run: go mod tidy
+
       - uses: actions/setup-go@v4
         with:
           go-version: '1.21'
-          cache: true
+          cache: true  # Now this will work
 
-      # Create minimal .golangci.yml if none exists
-      - name: Setup lint configuration
-        run: |
-          if [ ! -f .golangci.yml ]; then
-            echo 'run: {timeout: 3m}' > .golangci.yml
-          fi
-
-      # Run linter with fallback configuration
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
           version: v1.55.2
-          args: --timeout=3m --skip-dirs-use-default
+          args: --timeout=3m
 
-      - name: Download dependencies
-        run: go mod download
-
-      - name: Build application
-        run: go build -o myapp .
+      - run: go mod download
+      - run: go test -v ./...
+      - run: go build -o myapp .
