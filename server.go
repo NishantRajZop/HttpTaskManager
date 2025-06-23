@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type handler struct {
@@ -213,7 +214,14 @@ func main() {
 	http.HandleFunc("GET /tasks/{id}", h.ReturnSpecificID) // get id
 	http.HandleFunc("PUT /tasks/{id}", h.CompleteThisTask) // markComplete
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	srv := &http.Server{
+		Addr:         ":8080",
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+	}
+
+	if err := srv.ListenAndServe(); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
 }
