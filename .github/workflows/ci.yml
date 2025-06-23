@@ -1,0 +1,51 @@
+#name: CI PIPELINE
+#on: [pull_request] # it gets Trigger on pull and push_request
+#
+#jobs:
+#  test:
+#    name: Run Tests
+#    runs-on: ubuntu-latest #github hosted Linux-Vm
+#
+#    steps:
+#      # 1. Check out code
+#      - uses: actions/checkout@v4
+#
+#      # 2. Set up Go
+#      - uses: actions/setup-go@v4
+#        with:
+#          go-version: '1.21'  # Replace with your Go version
+#
+#      # 3. Install dependencies
+#      - run: go mod download
+#
+#      # 4. Run csLint
+#      # - run: go test -v ./...
+#
+#      # 5. Build the binary (optional)
+#      - run: go build -o myapp
+
+name: CI Pipeline
+on: [pull_request, push]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+          cache: true
+
+      # Most efficient method (cached installation)
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.55.2
+          args: --timeout=3m
+
+      - run: go mod download
+      - run: go build -o myapp .
